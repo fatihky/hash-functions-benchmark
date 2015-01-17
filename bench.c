@@ -9,6 +9,7 @@
 #include "fnv.c"
 #include "tommyds-2.0/tommyds/tommyhash.c"
 #include "spooky/spooky-c.h"
+#include "fast-hash/fasthash.c"
 
 // gcc bench.c xxHash/xxhash.c spooky/spooky-c.o --std=c99
 
@@ -62,6 +63,20 @@ int main(int argc, char *argv[]) {
         spooky((const void *)data, 120, &hash1, &hash2);
     t = mstime() - t;
     printf("spooky: %lld mb/sec\n", ((1000000LL * 1000LL / t) * 120) / (1024 * 1024));
+
+    uint32_t fasthash_seed = 0;
+    t = mstime();
+    for(int i = 0; i < 1000000; i++)
+        fasthash_seed = fasthash32((const void *)data, 120, fasthash_seed);
+    t = mstime() - t;
+    printf("fasthash32: %lld mb/sec\n", ((1000000LL * 1000LL / t) * 120) / (1024 * 1024));
+
+    uint64_t fasthash_seed64 = 0;
+    t = mstime();
+    for(int i = 0; i < 1000000; i++)
+        fasthash_seed64 = fasthash64((const void *)data, 120, fasthash_seed64);
+    t = mstime() - t;
+    printf("fasthash64: %lld mb/sec\n", ((1000000LL * 1000LL / t) * 120) / (1024 * 1024));
 
     return 0;
 }
